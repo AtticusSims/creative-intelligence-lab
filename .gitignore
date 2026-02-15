@@ -1,0 +1,4 @@
+images/raw/
+extract_mars.py
+*.pyc
+__pycache__/

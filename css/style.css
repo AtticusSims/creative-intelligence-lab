@@ -551,6 +551,14 @@ ol, ul {
     padding-top: var(--space-xs);
 }
 
+.project-gallery--full {
+    grid-column: 1 / -1;
+}
+
+.project-gallery + .project-gallery {
+    margin-top: var(--space-sm);
+}
+
 /* === Director ===
    Two variants: default (dark bg) and --light (light bg) */
 
