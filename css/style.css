@@ -1,0 +1,697 @@
+/* ============================================
+   CREATIVE INTELLIGENCE LAB — STYLESHEET
+   ============================================
+
+   Structure:
+   1. CSS Variables (design tokens)
+   2. Reset & Base
+   3. Typography
+   4. Layout
+   5. Navigation
+   6. Hero
+   7. Sections
+      - About
+      - Vision        ← NEW
+      - Pillars (with light variant)
+      - Projects      ← NEW
+      - Director (with light variant)
+      - Contact
+   8. Footer
+   9. Responsive / Mobile
+
+   ============================================ */
+
+/* ----- 1. CSS VARIABLES -----
+   Define colors, fonts, spacing in one place.
+   This makes it easy to change the whole look later. */
+
+:root {
+    --color-bg: #fafafa;
+    --color-bg-dark: #111111;
+    --color-text: #1a1a1a;
+    --color-text-light: #e8e8e8;
+    --color-text-muted: #6b6b6b;
+    --color-accent: #2a4fff;
+    --color-accent-hover: #1a3acc;
+    --color-border: #e0e0e0;
+    --color-card-bg: #ffffff;
+
+    --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Cascadia Code', 'Fira Code', monospace;
+
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 2rem;
+    --space-lg: 4rem;
+    --space-xl: 6rem;
+
+    --max-width: 1100px;
+    --nav-height: 64px;
+}
+
+/* ----- 2. RESET & BASE -----
+   Normalize browser defaults so the page looks
+   consistent across Chrome, Firefox, Safari, etc. */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-height);
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--color-accent-hover);
+}
+
+/* ----- 3. TYPOGRAPHY ----- */
+
+h1, h2, h3 {
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.25rem;
+}
+
+ol, ul {
+    padding-left: 1.5rem;
+}
+
+/* ----- 4. LAYOUT ----- */
+
+.container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+.section {
+    padding: var(--space-xl) 0;
+}
+
+.section--dark {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+}
+
+.section-title {
+    margin-bottom: var(--space-lg);
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+}
+
+.section--dark .section-title {
+    color: var(--color-text-light);
+}
+
+/* Intro text that appears below a section title */
+.section-intro {
+    max-width: 600px;
+    margin-bottom: var(--space-lg);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.section--dark .section-intro {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ----- 5. NAVIGATION -----
+   Fixed at the top. Starts transparent on the hero
+   and gets a background when scrolled (via JS). */
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    z-index: 100;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 1px 0 var(--color-border);
+    backdrop-filter: blur(8px);
+}
+
+.nav-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-light);
+    transition: color 0.3s ease;
+}
+
+.nav.scrolled .nav-logo {
+    color: var(--color-text);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: var(--space-md);
+}
+
+.nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+}
+
+.nav.scrolled .nav-links a {
+    color: var(--color-text-muted);
+}
+
+.nav.scrolled .nav-links a:hover {
+    color: var(--color-text);
+}
+
+/* Hamburger toggle — hidden on desktop */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-xs);
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-text-light);
+    transition: background-color 0.3s ease;
+}
+
+.nav.scrolled .nav-toggle span {
+    background-color: var(--color-text);
+}
+
+/* ----- 6. HERO ----- */
+
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-dark);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle gradient overlay */
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(42, 79, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    text-align: center;
+    padding: var(--space-lg) var(--space-md);
+    max-width: 800px;
+}
+
+.hero-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: var(--space-md);
+}
+
+.hero-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--space-md);
+}
+
+.hero-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 550px;
+    margin: 0 auto var(--space-lg);
+    line-height: 1.6;
+}
+
+.hero-cta {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-cta:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+}
+
+/* ----- 7. SECTIONS ----- */
+
+/* === About === */
+.about-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+.about-text p {
+    margin-bottom: var(--space-sm);
+}
+
+.about-text ol {
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+.about-text ol li {
+    margin-bottom: var(--space-xs);
+}
+
+.info-card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-sm);
+    border-radius: 4px;
+}
+
+.info-card-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.info-card p {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* === Vision (NEW) ===
+   Features a prominent blockquote and a 2x2 grid
+   of vision statements. Lives on a dark background. */
+
+.vision-quote {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #ffffff;
+    border-left: 3px solid var(--color-accent);
+    padding-left: var(--space-md);
+    margin-bottom: var(--space-lg);
+    max-width: 700px;
+    font-style: normal;
+}
+
+.vision-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.vision-item {
+    padding: var(--space-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.vision-item:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.vision-item h3 {
+    color: #ffffff;
+    margin-bottom: var(--space-xs);
+}
+
+.vision-item p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+/* === Pillars ===
+   Three-column cards. Two variants:
+   - default (dark bg): white text, subtle borders
+   - --light (light bg): dark text, solid borders */
+
+.pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.pillar-card {
+    padding: var(--space-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.pillar-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.pillar-number {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.pillar-card h3 {
+    margin-bottom: var(--space-sm);
+    color: #ffffff;
+}
+
+.pillar-card p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+/* Light variant — for when pillars sit on a light bg */
+.pillar-card--light {
+    border-color: var(--color-border);
+    background-color: var(--color-card-bg);
+}
+
+.pillar-card--light:hover {
+    border-color: #bbb;
+}
+
+.pillar-card--light h3 {
+    color: var(--color-text);
+}
+
+.pillar-card--light p {
+    color: var(--color-text-muted);
+}
+
+/* === Projects (NEW) ===
+   A stacked list of project cards on a dark background.
+   Each project has a tag line, title, description, and
+   optional collaboration credit. */
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.project {
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.project:last-child {
+    border-bottom: none;
+}
+
+.project-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.project h3 {
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin-bottom: var(--space-sm);
+}
+
+.project p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.7;
+    max-width: 800px;
+}
+
+.project-collab {
+    margin-top: var(--space-xs);
+    font-size: 0.8rem !important;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.projects-placeholder {
+    color: rgba(255, 255, 255, 0.35);
+    font-style: italic;
+    padding: var(--space-lg) 0;
+}
+
+/* Featured project — has a header image and gallery */
+.project--featured {
+    padding-top: 0;
+}
+
+.project-header-image {
+    margin-bottom: var(--space-md);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.project-header-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.project-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.project-gallery figure {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.project-gallery img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.project-gallery figcaption {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    padding-top: var(--space-xs);
+}
+
+/* === Director ===
+   Two variants: default (dark bg) and --light (light bg) */
+
+.director-card {
+    max-width: 750px;
+}
+
+.director-info h3 {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.director-role {
+    font-size: 0.9rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+}
+
+.director-info p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: var(--space-sm);
+    font-size: 0.95rem;
+}
+
+/* Light variant — for when director sits on a light bg */
+.director-card--light .director-info h3 {
+    color: var(--color-text);
+}
+
+.director-card--light .director-info p {
+    color: var(--color-text-muted);
+}
+
+/* === Contact === */
+.contact-content > p {
+    max-width: 600px;
+    margin-bottom: var(--space-md);
+}
+
+/* In dark sections, muted contact text should be lighter */
+.section--dark .contact-content > p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.contact-details {
+    display: flex;
+    gap: var(--space-lg);
+}
+
+.contact-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.section--dark .contact-label {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.contact-item p {
+    font-size: 0.95rem;
+}
+
+.section--dark .contact-item p {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ----- 8. FOOTER ----- */
+
+.footer {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.footer p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* ----- 9. RESPONSIVE / MOBILE ----- */
+
+@media (max-width: 768px) {
+
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(8px);
+        flex-direction: column;
+        padding: var(--space-md);
+        gap: var(--space-sm);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        color: var(--color-text) !important;
+        font-size: 1rem;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 10vw, 4rem);
+    }
+
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vision-quote {
+        font-size: 1.25rem;
+    }
+
+    .vision-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pillars-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-details {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+}
