@@ -268,7 +268,7 @@
         /* Panorama viewer */
         .pano-container {
             width: 100%;
-            height: 240px;
+            height: 350px;
             border-radius: 8px;
             overflow: hidden;
             margin-top: 0.75rem;
@@ -398,7 +398,7 @@
             .mem-grid { grid-template-columns: 1fr; }
             .img-row { grid-template-columns: 1fr; }
             .c-flex { flex-direction: column; gap: 2rem; }
-            .pano-container { height: 180px; }
+            .pano-container { height: 250px; }
         }
     </style>
 </head>
@@ -928,7 +928,7 @@
         const panoEl = document.getElementById('pano-viewer');
         if (panoEl) {
             const pScene = new THREE.Scene();
-            const pCam = new THREE.PerspectiveCamera(75, panoEl.clientWidth / panoEl.clientHeight, 0.1, 1000);
+            const pCam = new THREE.PerspectiveCamera(55, panoEl.clientWidth / panoEl.clientHeight, 0.1, 1000);
             pCam.position.set(0, 0, 0.01);
 
             const pRenderer = new THREE.WebGLRenderer({ antialias: true });

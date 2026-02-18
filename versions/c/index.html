@@ -701,7 +701,7 @@
         const panoEl = document.getElementById('pano-viewer');
         if (panoEl) {
             const pScene = new THREE.Scene();
-            const pCam = new THREE.PerspectiveCamera(75, panoEl.clientWidth / panoEl.clientHeight, 0.1, 1000);
+            const pCam = new THREE.PerspectiveCamera(55, panoEl.clientWidth / panoEl.clientHeight, 0.1, 1000);
             pCam.position.set(0, 0, 0.01);
 
             const pRenderer = new THREE.WebGLRenderer({ antialias: true });
