@@ -294,13 +294,13 @@
         /* Image gallery below pano */
         .img-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
             margin-top: 0.75rem;
         }
         .img-row img {
             width: 100%;
-            height: 220px;
+            height: 180px;
             object-fit: cover;
             object-position: center top;
             border-radius: 6px;
@@ -499,13 +499,14 @@
 
                 <!-- Interactive panorama viewer -->
                 <div class="pano-container" id="pano-viewer">
-                    <span class="pano-hint">Drag to explore the lunar surface</span>
+                    <span class="pano-hint">Drag to explore Tycho Crater</span>
                 </div>
 
                 <div class="img-row r">
                     <figure><img src="../../images/hung-hoi-vr-studio.jpg" alt="Hung Hoi in VR"><figcaption>Hung Hoi in VR at his Hong Kong studio</figcaption></figure>
                     <figure><img src="../../images/vr-landscape-sketch.jpg" alt="VR sketch"><figcaption>VR landscape sketch on the Martian surface</figcaption></figure>
                     <figure><img src="../../images/komarov-crater-panorama.jpg" alt="Komarov Crater"><figcaption>Komarov Crater &mdash; AI-enhanced from LROC</figcaption></figure>
+                    <figure><img src="../../images/apollo-surface-panorama.jpg" alt="Apollo lunar surface"><figcaption>Apollo landing site &mdash; stitched panorama</figcaption></figure>
                 </div>
             </div>
         </section>
@@ -938,7 +939,7 @@
 
             const sphereGeo = new THREE.SphereGeometry(50, 60, 40);
             sphereGeo.scale(-1, 1, 1);
-            const tex = new THREE.TextureLoader().load('../../images/apollo-surface-panorama.jpg');
+            const tex = new THREE.TextureLoader().load('../../images/tycho-crater-panorama.jpg');
             const sphereMat = new THREE.MeshBasicMaterial({ map: tex });
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             pScene.add(sphere);
