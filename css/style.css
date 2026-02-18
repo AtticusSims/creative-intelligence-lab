@@ -593,6 +593,61 @@ ol, ul {
     color: var(--color-text-muted);
 }
 
+.director-card--light .director-info a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+.director-card--light .director-info a:hover {
+    text-decoration: underline;
+}
+
+/* === People group titles === */
+.people-group-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.people-group-title:first-of-type {
+    margin-top: 0;
+}
+
+/* === Members === */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.member-card {
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-card-bg);
+}
+
+.member-name {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.member-role {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.member-card p:last-child {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
 /* === Contact === */
 .contact-content > p {
     max-width: 600px;
@@ -695,6 +750,10 @@ ol, ul {
     }
 
     .project-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .members-grid {
         grid-template-columns: 1fr;
     }
 
