@@ -539,6 +539,17 @@ ol, ul {
     display: block;
 }
 
+.img-credit {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.3);
+    padding-top: var(--space-xs);
+}
+
+.img-credit em {
+    font-style: italic;
+}
+
 .project-gallery {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

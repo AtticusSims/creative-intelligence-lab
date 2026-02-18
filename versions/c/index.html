@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIL — Version C: Immersive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --font: 'Space Grotesk', system-ui, sans-serif;
+            --black: #050505;
+            --white: #f0ede8;
+            --dim: rgba(240,237,232,0.4);
+            --accent: #4d6aff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* === THREE.JS CANVAS === */
+        #scene-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        canvas { display: block; }
+
+        /* === SCROLL CONTENT OVER 3D === */
+        .scroll-content {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .scroll-content a,
+        .scroll-content button,
+        .scroll-content nav { pointer-events: auto; }
+        section { pointer-events: auto; }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 200;
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            color: var(--white);
+            text-decoration: none;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--white); }
+
+        /* === HERO (transparent, 3D shows through) === */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            mix-blend-mode: difference;
+        }
+        .hero-sub {
+            font-size: 0.85rem;
+            color: var(--dim);
+            max-width: 450px;
+            margin: 1.5rem auto 0;
+            letter-spacing: 0.02em;
+        }
+        .hero-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 1.5rem;
+        }
+
+        /* === SECTIONS === */
+        .s-pad {
+            padding: clamp(5rem, 12vw, 10rem) 2.5rem;
+        }
+        .glass {
+            background: rgba(5,5,5,0.75);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+        .max-w { max-width: 1200px; margin: 0 auto; }
+
+        .eyebrow {
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .heading {
+            font-size: clamp(2rem, 4.5vw, 3.25rem);
+            font-weight: 600;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            margin-bottom: 2rem;
+        }
+        .body { font-size: 0.9rem; color: var(--dim); line-height: 1.75; }
+
+        /* Reveal */
+        .r { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .r.v { opacity: 1; transform: none; }
+        .d1 { transition-delay: 0.12s; }
+        .d2 { transition-delay: 0.24s; }
+        .d3 { transition-delay: 0.36s; }
+
+        /* === ABOUT === */
+        .about-cols {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 4rem;
+        }
+        .about-cols p { margin-bottom: 1rem; }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .stat-box {
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 6px;
+            padding: 1.25rem;
+            background: rgba(255,255,255,0.02);
+        }
+        .stat-lbl {
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        .stat-val { font-weight: 600; font-size: 0.9rem; }
+
+        /* === VISION === */
+        .vision-quote {
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+            font-weight: 300;
+            line-height: 1.3;
+            max-width: 850px;
+            margin-bottom: 4rem;
+        }
+        .vision-quote span { color: var(--accent); }
+        .v-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .v-card {
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 2rem;
+            background: rgba(255,255,255,0.015);
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .v-card:hover {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+        .v-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .v-card p { font-size: 0.82rem; color: var(--dim); line-height: 1.65; }
+
+        /* === PILLARS === */
+        .pill-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+        .pill {
+            padding: 2.5rem;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.3s;
+        }
+        .pill:hover { background: rgba(255,255,255,0.02); }
+        .pill-n {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.04);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .pill h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .pill p { font-size: 0.82rem; color: var(--dim); line-height: 1.65; }
+
+        /* === PROJECT === */
+        .proj-img {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+        .proj-img img { width: 100%; height: auto; display: block; }
+        .img-credit {
+            display: block;
+            font-size: 0.68rem;
+            color: var(--dim);
+            margin-top: 0.5rem;
+        }
+        .img-credit em { font-style: italic; }
+        .proj-tag {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .proj-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .proj-cols p { font-size: 0.88rem; color: var(--dim); line-height: 1.75; margin-bottom: 0.75rem; }
+        .proj-credit {
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+            margin-top: 1rem;
+        }
+
+        /* Panorama viewer */
+        .pano-container {
+            width: 100%;
+            height: 350px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 2.5rem;
+            cursor: grab;
+            position: relative;
+        }
+        .pano-container:active { cursor: grabbing; }
+        .pano-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            z-index: 5;
+            pointer-events: none;
+            animation: fadeHint 3s ease 2s forwards;
+        }
+        @keyframes fadeHint { to { opacity: 0; } }
+
+        /* Image gallery below pano */
+        .img-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .img-row img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            object-position: center top;
+            border-radius: 6px;
+            display: block;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .img-row img:hover { opacity: 1; }
+        .img-row figcaption {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.25);
+            margin-top: 0.4rem;
+        }
+
+        /* === PEOPLE === */
+        .dir-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 3rem;
+            align-items: start;
+            margin-bottom: 3rem;
+        }
+        .dir-nameblock h3 { font-size: 1.5rem; font-weight: 600; }
+        .dir-nameblock .role {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 0.2rem;
+        }
+        .dir-bio p {
+            font-size: 0.88rem;
+            color: var(--dim);
+            line-height: 1.75;
+            margin-bottom: 0.75rem;
+        }
+        .dir-bio a { color: var(--accent); text-decoration: none; }
+        .dir-bio a:hover { text-decoration: underline; }
+
+        .mem-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 1.25rem;
+            display: block;
+        }
+        .mem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .mem {
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 1.75rem;
+            background: rgba(255,255,255,0.015);
+            transition: border-color 0.3s;
+        }
+        .mem:hover { border-color: rgba(255,255,255,0.12); }
+        .mem h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.15rem; }
+        .mem .mrole { font-size: 0.68rem; color: var(--accent); margin-bottom: 0.75rem; display: block; }
+        .mem p { font-size: 0.82rem; color: var(--dim); line-height: 1.6; }
+
+        /* === CONTACT === */
+        .c-flex {
+            display: flex;
+            gap: 5rem;
+        }
+        .c-label {
+            font-size: 0.55rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        .c-flex p { font-size: 0.88rem; color: var(--dim); }
+        .c-flex a { color: var(--white); text-decoration: none; }
+        .c-flex a:hover { text-decoration: underline; }
+
+        /* === FOOTER === */
+        footer {
+            padding: 2rem 2.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        footer p { font-size: 0.7rem; color: rgba(255,255,255,0.2); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .about-cols, .proj-cols { grid-template-columns: 1fr; }
+            .v-grid { grid-template-columns: 1fr; }
+            .pill-grid { grid-template-columns: 1fr; }
+            .dir-grid { grid-template-columns: 1fr; }
+            .mem-grid { grid-template-columns: 1fr; }
+            .img-row { grid-template-columns: 1fr; }
+            .c-flex { flex-direction: column; gap: 2rem; }
+            .pano-container { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- THREE.JS BACKGROUND -->
+    <div id="scene-container"></div>
+
+    <div class="scroll-content">
+
+        <nav>
+            <a href="#" class="logo">CIL</a>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#vision">Vision</a></li>
+                <li><a href="#project">Projects</a></li>
+                <li><a href="#people">People</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <header class="hero">
+            <div style="text-align:center">
+                <p class="hero-label r">University of Macau &middot; Arts &amp; Design</p>
+                <h1 class="r d1">Creative<br>Intelligence<br>Lab</h1>
+                <p class="hero-sub r d2">Where artificial intelligence meets artistic practice.</p>
+            </div>
+        </header>
+
+        <section id="about" class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">About</span>
+                <h2 class="heading r">A hub for AI-driven art &amp; design research</h2>
+                <div class="about-cols r d1">
+                    <div>
+                        <p class="body">The Creative Intelligence Lab (CIL) is a research lab in the Department of Arts and Design, Faculty of Arts and Humanities at the University of Macau. We serve as a hub for investigating the creative potential of artificial intelligence&mdash;bridging traditional artistic practices with emerging technologies to discover new forms of expression.</p>
+                        <p class="body">The lab pursues two interconnected goals: to develop practical principles and methodologies for incorporating generative AI into art and design practice and education, and to provide a collaborative space where students and researchers can experiment with cutting-edge AI tools in the pursuit of meaningful creative work.</p>
+                        <p class="body">Through practice-based research, international collaboration, and publicly engaged creative output, the lab aims to position the University of Macau as a leader in AI-driven art and design research in the Greater Bay Area and beyond.</p>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-box"><span class="stat-lbl">Faculty</span><span class="stat-val">Arts &amp; Humanities</span></div>
+                        <div class="stat-box"><span class="stat-lbl">Department</span><span class="stat-val">Arts &amp; Design</span></div>
+                        <div class="stat-box"><span class="stat-lbl">Established</span><span class="stat-val">2025</span></div>
+                        <div class="stat-box"><span class="stat-lbl">Location</span><span class="stat-val">Macau, Taipa</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transparent spacer — 3D shows through -->
+        <div style="height:40vh"></div>
+
+        <section id="vision" class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">Vision</span>
+                <div class="vision-quote r">AI as a tool for <span>augmenting</span> human creativity&mdash;enhancing skills and intuition rather than replacing established artistic practices.</div>
+                <div class="v-grid">
+                    <div class="v-card r d1"><h3>Beyond the Hype</h3><p>Our approach to AI integration is rooted in sustainability&mdash;moving past short-lived trends to focus on long-term impact.</p></div>
+                    <div class="v-card r d2"><h3>Tradition &amp; Innovation</h3><p>We explore how AI reshapes creative production while maintaining connections to traditional art forms and cultural heritage.</p></div>
+                    <div class="v-card r d1"><h3>Open &amp; Adaptable</h3><p>Open-source technologies and adaptable frameworks that can be customized for diverse institutional and cultural contexts.</p></div>
+                    <div class="v-card r d2"><h3>Tangible Outcomes</h3><p>Exhibitions, design products, publications, and public installations that directly engage with the contemporary world.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:30vh"></div>
+
+        <section class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">Focus Areas</span>
+                <h2 class="heading r">Three pillars of inquiry</h2>
+                <div class="pill-grid r d1">
+                    <div class="pill"><div class="pill-n">01</div><h3>Research &amp; Development</h3><p>Investigating new applications for AI in art and design through practice-based research, human-AI collaboration, and next-generation creative tools.</p></div>
+                    <div class="pill"><div class="pill-n">02</div><h3>Creative Production</h3><p>High-performance computing, open-source AI tools, digital fabrication. Work spanning generative imagery, AI-driven live performance, immersive media, and installation.</p></div>
+                    <div class="pill"><div class="pill-n">03</div><h3>Knowledge Exchange</h3><p>International partnerships, workshops, exhibitions, and scholarly publications fostering cross-disciplinary collaboration.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:30vh"></div>
+
+        <section id="project" class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">Selected Projects</span>
+                <div class="proj-img r">
+                    <img src="../../images/mars-impression-painting.jpg" alt="Mars Impression by Hung Hoi">
+                    <span class="img-credit"><em>Mars Impression</em>, Hung Hoi (熊海), 2025. Ink and colour on paper.</span>
+                </div>
+                <span class="proj-tag r">AI &middot; VR &middot; Planetary Science &middot; Chinese Ink Painting</span>
+                <h2 class="heading r">Celestial Impression</h2>
+                <div class="proj-cols r d1">
+                    <p>Celestial Impression is a collaboration between the Creative Intelligence Lab and esteemed Hong Kong ink artist Hung Hoi. Building on the earlier Mars Impression project&mdash;in which Hung Hoi created large-scale ink paintings of the Martian surface after experiencing NASA panoramas in VR&mdash;the project extends the same art-science methodology to the Moon.</p>
+                    <div>
+                        <p>The technical team develops two innovative pipelines: multi-image stitching of archival NASA photography combined with AI inpainting to produce seamless 360-degree panoramas, and AI-enhanced generation from low-resolution LROC data using custom ComfyUI workflows.</p>
+                        <div class="proj-credit">Studio Pollen &middot; Creative Intelligence Lab</div>
+                    </div>
+                </div>
+
+                <!-- Interactive panorama viewer -->
+                <div class="pano-container" id="pano-viewer">
+                    <span class="pano-hint">Drag to explore the lunar surface</span>
+                </div>
+
+                <div class="img-row r">
+                    <figure><img src="../../images/hung-hoi-vr-studio.jpg" alt="Hung Hoi in VR"><figcaption>Hung Hoi in VR at his Hong Kong studio</figcaption></figure>
+                    <figure><img src="../../images/vr-landscape-sketch.jpg" alt="VR sketch"><figcaption>VR landscape sketch on the Martian surface</figcaption></figure>
+                    <figure><img src="../../images/komarov-crater-panorama.jpg" alt="Komarov Crater"><figcaption>Komarov Crater &mdash; AI-enhanced from LROC</figcaption></figure>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:30vh"></div>
+
+        <section id="people" class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">People</span>
+                <h2 class="heading r">The team</h2>
+
+                <div class="dir-grid r d1">
+                    <div class="dir-nameblock">
+                        <h3>Atticus Sims</h3>
+                        <div class="role">Assoc. Prof., AI &amp; Design</div>
+                    </div>
+                    <div class="dir-bio">
+                        <p>Atticus Sims is an Associate Professor of Interdisciplinary Research in Artificial Intelligence and Design at the University of Macau, within the Faculty of Arts and Humanities, <a href="https://fah.um.edu.mo/dad/" target="_blank" rel="noopener">Department of Arts and Design</a>. He is an interdisciplinary researcher and educator focused on integrating AI technologies into creative practices and art and design education.</p>
+                        <p>Previously a specially appointed associate professor at Kyoto Seika University&rsquo;s Faculty of Media Creation, he led a president-funded investigation into pedagogical frameworks for emerging AI tools. His research examines the systematic implementation of diffusion models and generative frameworks in art and design production.</p>
+                        <p>This academic work is complemented by industry experience as the founder of KYOTO VR, an immersive media production company. Current projects include <em>The Metamorphosis of Plants</em> exhibition and a permanent installation at Hong Kong Baptist University.</p>
+                        <p>He is a co-founder of <a href="https://www.studio-pollen.com/" target="_blank" rel="noopener">Studio Pollen</a>, an art, science and technology collective with members based across Kyoto, Macau and Hong Kong.</p>
+                    </div>
+                </div>
+
+                <span class="mem-label r">Members</span>
+                <div class="mem-grid">
+                    <div class="mem r d1"><h4>Ethan Quan</h4><span class="mrole">Doctoral Student, VCD</span><p>Art and creative designer, former Senior UX Designer at vivo and Xiaomi. Research focuses on the visual design of consumer electronic systems.</p></div>
+                    <div class="mem r d2"><h4>Lawrence Song</h4><span class="mrole">Doctoral Student, VCD</span><p>Designer and creative technologist at the intersection of computation and visual/experiential design. Creates electronic content, interactive experiences, and immersive environments.</p></div>
+                    <div class="mem r d3"><h4>Joanna Yan</h4><span class="mrole">Doctoral Student, VCD</span><p>UK-Chartered Landscape Architect and visual artist. Nearly a decade of international practice, now focused on immersive spatial experiences and AIGC-driven interactive art.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:20vh"></div>
+
+        <section id="contact" class="s-pad glass">
+            <div class="max-w">
+                <span class="eyebrow r">Contact</span>
+                <h2 class="heading r" style="margin-bottom:1rem;">Get in touch</h2>
+                <p class="body r" style="max-width:500px;margin-bottom:2rem;">We welcome inquiries from prospective students, potential collaborators, and fellow researchers.</p>
+                <div class="c-flex r d1">
+                    <div><span class="c-label">Email</span><p><a href="mailto:atticussims@um.edu.mo">atticussims@um.edu.mo</a></p></div>
+                    <div><span class="c-label">Location</span><p>Department of Arts and Design<br>Faculty of Arts and Humanities<br>University of Macau, Taipa<br>Macau SAR, China</p></div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025&ndash;2026 Creative Intelligence Lab, University of Macau</p>
+        </footer>
+
+    </div>
+
+    <!-- THREE.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    (function() {
+        // === BACKGROUND PARTICLE FIELD ===
+        const container = document.getElementById('scene-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x050505, 1);
+        container.appendChild(renderer.domElement);
+
+        // Particle system
+        const particleCount = 3000;
+        const positions = new Float32Array(particleCount * 3);
+        const velocities = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 20;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+            velocities[i * 3] = (Math.random() - 0.5) * 0.002;
+            velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.002;
+            velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.002;
+            sizes[i] = Math.random() * 2 + 0.5;
+        }
+
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const mat = new THREE.PointsMaterial({
+            color: 0x4d6aff,
+            size: 0.025,
+            transparent: true,
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+
+        const particles = new THREE.Points(geo, mat);
+        scene.add(particles);
+
+        // Connection lines between close particles
+        const lineGeo = new THREE.BufferGeometry();
+        const maxLines = 1000;
+        const linePositions = new Float32Array(maxLines * 6);
+        lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+        lineGeo.setDrawRange(0, 0);
+
+        const lineMat = new THREE.LineBasicMaterial({
+            color: 0x4d6aff,
+            transparent: true,
+            opacity: 0.06,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+        const lines = new THREE.LineSegments(lineGeo, lineMat);
+        scene.add(lines);
+
+        // Mouse tracking
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // Scroll tracking
+        let scrollY = 0;
+        window.addEventListener('scroll', () => { scrollY = window.pageYOffset; });
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animate
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const posArr = particles.geometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                posArr[i*3]   += velocities[i*3];
+                posArr[i*3+1] += velocities[i*3+1];
+                posArr[i*3+2] += velocities[i*3+2];
+
+                // Wrap around
+                for (let j = 0; j < 3; j++) {
+                    if (posArr[i*3+j] > 10) posArr[i*3+j] = -10;
+                    if (posArr[i*3+j] < -10) posArr[i*3+j] = 10;
+                }
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            // Update connections (sample subset for perf)
+            let lineIdx = 0;
+            const lp = lineGeo.attributes.position.array;
+            const threshold = 1.8;
+            for (let i = 0; i < Math.min(200, particleCount); i++) {
+                for (let j = i + 1; j < Math.min(200, particleCount); j++) {
+                    if (lineIdx >= maxLines) break;
+                    const dx = posArr[i*3] - posArr[j*3];
+                    const dy = posArr[i*3+1] - posArr[j*3+1];
+                    const dz = posArr[i*3+2] - posArr[j*3+2];
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    if (dist < threshold) {
+                        lp[lineIdx*6]   = posArr[i*3];
+                        lp[lineIdx*6+1] = posArr[i*3+1];
+                        lp[lineIdx*6+2] = posArr[i*3+2];
+                        lp[lineIdx*6+3] = posArr[j*3];
+                        lp[lineIdx*6+4] = posArr[j*3+1];
+                        lp[lineIdx*6+5] = posArr[j*3+2];
+                        lineIdx++;
+                    }
+                }
+            }
+            lineGeo.setDrawRange(0, lineIdx * 2);
+            lineGeo.attributes.position.needsUpdate = true;
+
+            // Camera follows mouse + scroll
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.02;
+            camera.rotation.y = scrollY * 0.0001;
+            camera.position.z = 5 + scrollY * 0.0005;
+
+            // Color shift based on scroll
+            const scrollRatio = Math.min(scrollY / (document.body.scrollHeight - window.innerHeight), 1);
+            const hue = 0.62 + scrollRatio * 0.15;
+            mat.color.setHSL(hue, 0.7, 0.55);
+            lineMat.color.setHSL(hue, 0.7, 0.55);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // === PANORAMA SPHERE VIEWER ===
+        const panoEl = document.getElementById('pano-viewer');
+        if (panoEl) {
+            const pScene = new THREE.Scene();
+            const pCam = new THREE.PerspectiveCamera(75, panoEl.clientWidth / panoEl.clientHeight, 0.1, 1000);
+            pCam.position.set(0, 0, 0.01);
+
+            const pRenderer = new THREE.WebGLRenderer({ antialias: true });
+            pRenderer.setSize(panoEl.clientWidth, panoEl.clientHeight);
+            pRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            panoEl.appendChild(pRenderer.domElement);
+
+            const sphereGeo = new THREE.SphereGeometry(50, 60, 40);
+            sphereGeo.scale(-1, 1, 1);
+            const tex = new THREE.TextureLoader().load('../../images/apollo-surface-panorama.jpg');
+            const sphereMat = new THREE.MeshBasicMaterial({ map: tex });
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            pScene.add(sphere);
+
+            let isDragging = false;
+            let prevX = 0, prevY = 0;
+            let lon = 0, lat = 0;
+
+            panoEl.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                prevX = e.clientX;
+                prevY = e.clientY;
+            });
+            window.addEventListener('pointerup', () => { isDragging = false; });
+            window.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                lon -= (e.clientX - prevX) * 0.2;
+                lat += (e.clientY - prevY) * 0.2;
+                lat = Math.max(-85, Math.min(85, lat));
+                prevX = e.clientX;
+                prevY = e.clientY;
+            });
+
+            // Auto-rotate slowly
+            function animatePano() {
+                requestAnimationFrame(animatePano);
+                if (!isDragging) lon += 0.02;
+                const phi = THREE.MathUtils.degToRad(90 - lat);
+                const theta = THREE.MathUtils.degToRad(lon);
+                const target = new THREE.Vector3(
+                    50 * Math.sin(phi) * Math.cos(theta),
+                    50 * Math.cos(phi),
+                    50 * Math.sin(phi) * Math.sin(theta)
+                );
+                pCam.lookAt(target);
+                pRenderer.render(pScene, pCam);
+            }
+            animatePano();
+
+            // Resize
+            const ro = new ResizeObserver(() => {
+                pCam.aspect = panoEl.clientWidth / panoEl.clientHeight;
+                pCam.updateProjectionMatrix();
+                pRenderer.setSize(panoEl.clientWidth, panoEl.clientHeight);
+            });
+            ro.observe(panoEl);
+        }
+
+        // === SCROLL REVEALS ===
+        const rObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('v'); });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.r').forEach(el => rObs.observe(el));
+    })();
+    </script>
+</body>
+</html>

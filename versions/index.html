@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIL — Design Variants</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrap {
+            max-width: 750px;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        .sub {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 3rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .card {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.3s, background 0.3s, transform 0.3s;
+        }
+        .card:hover {
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.03);
+            transform: translateY(-4px);
+        }
+        .card-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #4d6aff;
+            margin-bottom: 0.75rem;
+        }
+        .card h2 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        .card p {
+            font-size: 0.82rem;
+            color: #777;
+            line-height: 1.6;
+        }
+        .current {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+        .current a { color: #4d6aff; text-decoration: none; }
+        .current a:hover { text-decoration: underline; }
+        @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>Design Variants</h1>
+        <p class="sub">Creative Intelligence Lab &mdash; four directions to compare</p>
+        <div class="cards">
+            <a href="a/index.html" class="card">
+                <div class="card-label">Version A</div>
+                <h2>Refined</h2>
+                <p>Conservative improvement. Better typography (Space Grotesk + Inter), scroll animations, grain texture, horizontal scrolling gallery, polished layout.</p>
+            </a>
+            <a href="b/index.html" class="card">
+                <div class="card-label">Version B</div>
+                <h2>Editorial</h2>
+                <p>Magazine-style. Split hero with full-bleed painting, asymmetric grids, serif/sans contrast (Instrument Serif + DM Sans), cinematic project showcase, mix-blend-mode nav.</p>
+            </a>
+            <a href="c/index.html" class="card">
+                <div class="card-label">Version C</div>
+                <h2>Immersive</h2>
+                <p>Three.js particle network background, glass-morphism sections, interactive 360&deg; panorama viewer, scroll-driven camera + color shifts. Fully experimental.</p>
+            </a>
+            <a href="d/index.html" class="card">
+                <div class="card-label">Version D</div>
+                <h2>ASCII Immersive</h2>
+                <p>Dense ASCII character grid driven by layered simplex noise, creating flowing organic patterns that morph over time. Scanlines, mouse-reactive glow, scroll-responsive dimming. Midjourney-inspired generative text field.</p>
+            </a>
+        </div>
+        <p class="current" style="margin-top:3rem;">
+            <a href="../index.html" class="card" style="display:block; max-width:400px; margin:0 auto; opacity:0.6;">
+                <div class="card-label">Original</div>
+                <h2>Production Site</h2>
+                <p>The original deployed version. Minimal CSS grid layout, scroll-reveal animations, panorama viewer, image gallery.</p>
+            </a>
+        </p>
+    </div>
+</body>
+</html>

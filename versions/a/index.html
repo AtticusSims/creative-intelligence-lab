@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIL — Version A: Refined</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & TOKENS === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #f5f3f0;
+            --bg-dark: #0c0c0c;
+            --text: #1a1a1a;
+            --text-light: #e8e8e8;
+            --muted: #888;
+            --accent: #3d5afe;
+            --accent-warm: #e8ddd3;
+            --border: #ddd;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-heading: 'Space Grotesk', 'Inter', sans-serif;
+            --max-w: 1200px;
+            --space: clamp(1rem, 3vw, 2rem);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Subtle grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 9999;
+        }
+
+        /* === SCROLL ANIMATIONS === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.4s, backdrop-filter 0.4s;
+        }
+        nav.scrolled {
+            background: rgba(245, 243, 240, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .nav-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--muted);
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        /* === HERO === */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 2rem 8vh;
+            position: relative;
+        }
+        .hero-inner {
+            max-width: var(--max-w);
+            width: 100%;
+            margin: 0 auto;
+        }
+        .hero-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(3.5rem, 9vw, 7.5rem);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            color: var(--text);
+        }
+        .hero h1 span {
+            display: block;
+            color: var(--accent);
+        }
+        .hero-sub {
+            max-width: 520px;
+            margin-top: 2rem;
+            font-size: 1.05rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* === SECTIONS === */
+        section {
+            padding: clamp(4rem, 10vw, 8rem) 2rem;
+        }
+        .container {
+            max-width: var(--max-w);
+            margin: 0 auto;
+        }
+        .section-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+        }
+        .dark {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+        .dark .section-label { color: rgba(61, 90, 254, 0.7); }
+        .dark .muted-text { color: rgba(255,255,255,0.5); }
+        .warm { background: var(--accent-warm); }
+
+        /* === ABOUT === */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        .about-text p {
+            margin-bottom: 1rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .fact-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        .fact {
+            background: var(--bg);
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .fact-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        .fact-value {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* === VISION === */
+        .vision-quote {
+            font-family: var(--font-heading);
+            font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+            font-weight: 400;
+            line-height: 1.35;
+            color: var(--text-light);
+            max-width: 800px;
+            margin-bottom: 3.5rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 1.5rem;
+        }
+        .vision-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        .vision-card {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: border-color 0.3s;
+        }
+        .vision-card:hover {
+            border-color: rgba(255,255,255,0.2);
+        }
+        .vision-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+        .vision-card p {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.65;
+        }
+
+        /* === PILLARS === */
+        .pillars-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .pillar {
+            padding: 2.5rem 2rem;
+            border-right: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+        .pillar:last-child { border-right: none; }
+        .pillar:hover { background: rgba(0,0,0,0.015); }
+        .pillar-num {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.06);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .pillar h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .pillar p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        /* === PROJECT === */
+        .project-hero {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+        .project-hero img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .img-credit {
+            display: block;
+            font-size: 0.68rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 0.5rem;
+        }
+        .img-credit em { font-style: italic; }
+        .project-meta {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        .project-tag {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+        }
+        .project-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+        }
+        .project-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .project-body p {
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.7;
+        }
+        .project-collab {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-top: 1.5rem;
+        }
+
+        /* Horizontal scrolling gallery */
+        .h-gallery {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 2.5rem 0 1rem;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .h-gallery::-webkit-scrollbar { height: 2px; }
+        .h-gallery::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .h-gallery::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 1px; }
+        .h-gallery figure {
+            flex: 0 0 auto;
+            width: min(600px, 80vw);
+            scroll-snap-align: start;
+        }
+        .h-gallery img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            object-position: center top;
+            border-radius: 6px;
+            display: block;
+        }
+        .h-gallery figcaption {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 0.5rem;
+        }
+
+        /* === PEOPLE === */
+        .director-block {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            margin-bottom: 3.5rem;
+            align-items: start;
+        }
+        .director-name {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .director-role {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+        }
+        .director-bio p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+        .director-bio a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .director-bio a:hover { text-decoration: underline; }
+        .members-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1.25rem;
+            display: block;
+        }
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .member {
+            padding: 1.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .member:hover {
+            border-color: #ccc;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        }
+        .member h4 {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        .member-role-tag {
+            font-size: 0.72rem;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .member p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* === CONTACT === */
+        .contact-grid {
+            display: flex;
+            gap: 4rem;
+        }
+        .contact-item-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        .contact-grid p {
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .contact-grid a {
+            color: var(--text-light);
+            text-decoration: none;
+        }
+        .contact-grid a:hover { text-decoration: underline; }
+
+        /* === FOOTER === */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        footer p {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .about-grid { grid-template-columns: 1fr; }
+            .fact-strip { grid-template-columns: repeat(2, 1fr); }
+            .vision-grid { grid-template-columns: 1fr; }
+            .pillars-row { grid-template-columns: 1fr; }
+            .pillar { border-right: none; border-bottom: 1px solid var(--border); }
+            .pillar:last-child { border-bottom: none; }
+            .project-body { grid-template-columns: 1fr; }
+            .director-block { grid-template-columns: 1fr; }
+            .members-grid { grid-template-columns: 1fr; }
+            .contact-grid { flex-direction: column; gap: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="nav">
+        <a href="#" class="nav-logo">CIL</a>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#vision">Vision</a></li>
+            <li><a href="#pillars">Focus</a></li>
+            <li><a href="#project">Projects</a></li>
+            <li><a href="#people">People</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-inner">
+            <p class="hero-label reveal">University of Macau &middot; Department of Arts and Design</p>
+            <h1 class="reveal reveal-delay-1">Creative<br><span>Intelligence</span><br>Lab</h1>
+            <p class="hero-sub reveal reveal-delay-2">Where artificial intelligence meets artistic practice. We investigate, create, and share new approaches to art and design in the age of AI.</p>
+        </div>
+    </header>
+
+    <section id="about">
+        <div class="container">
+            <span class="section-label reveal">About</span>
+            <h2 class="section-title reveal">A hub for AI-driven<br>art &amp; design research</h2>
+            <div class="about-grid reveal reveal-delay-1">
+                <div class="about-text">
+                    <p>The Creative Intelligence Lab (CIL) is a research lab in the Department of Arts and Design, Faculty of Arts and Humanities at the University of Macau. We serve as a hub for investigating the creative potential of artificial intelligence&mdash;bridging traditional artistic practices with emerging technologies to discover new forms of expression.</p>
+                    <p>The lab pursues two interconnected goals: to develop practical principles and methodologies for incorporating generative AI into art and design practice and education, and to provide a collaborative space where students and researchers can experiment with cutting-edge AI tools in the pursuit of meaningful creative work.</p>
+                    <p>Through practice-based research, international collaboration, and publicly engaged creative output, the lab aims to position the University of Macau as a leader in AI-driven art and design research in the Greater Bay Area and beyond.</p>
+                </div>
+                <div>
+                    <div class="fact-strip">
+                        <div class="fact"><span class="fact-label">Faculty</span><span class="fact-value">Arts &amp; Humanities</span></div>
+                        <div class="fact"><span class="fact-label">Department</span><span class="fact-value">Arts &amp; Design</span></div>
+                        <div class="fact"><span class="fact-label">Est.</span><span class="fact-value">2025</span></div>
+                        <div class="fact"><span class="fact-label">Location</span><span class="fact-value">Macau, Taipa</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="vision" class="dark">
+        <div class="container">
+            <span class="section-label reveal">Vision</span>
+            <blockquote class="vision-quote reveal">AI as a tool for augmenting human creativity&mdash;enhancing skills and intuition rather than replacing established artistic practices.</blockquote>
+            <div class="vision-grid">
+                <div class="vision-card reveal reveal-delay-1">
+                    <h3>Beyond the Hype</h3>
+                    <p>Our approach to AI integration is rooted in sustainability&mdash;moving past short-lived trends to focus on the long-term impact and practical application of these technologies in creative practice.</p>
+                </div>
+                <div class="vision-card reveal reveal-delay-2">
+                    <h3>Bridging Tradition &amp; Innovation</h3>
+                    <p>We explore how AI fundamentally reshapes creative production while maintaining meaningful connections to traditional art forms, cultural heritage, and established artistic values.</p>
+                </div>
+                <div class="vision-card reveal reveal-delay-1">
+                    <h3>Open &amp; Adaptable</h3>
+                    <p>By emphasizing open-source technologies and adaptable frameworks, our research produces tools and methods that can be customized for diverse institutional, cultural, and creative contexts.</p>
+                </div>
+                <div class="vision-card reveal reveal-delay-2">
+                    <h3>Tangible Outcomes</h3>
+                    <p>We move beyond theoretical research to create publicly engaged creative outputs&mdash;exhibitions, design products, publications, and public installations that directly engage with the contemporary world.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pillars">
+        <div class="container">
+            <span class="section-label reveal">Focus Areas</span>
+            <h2 class="section-title reveal">Three pillars of inquiry</h2>
+            <div class="pillars-row reveal reveal-delay-1">
+                <div class="pillar">
+                    <div class="pillar-num">01</div>
+                    <h3>Research &amp; Development</h3>
+                    <p>Investigating new applications for AI in art and design through practice-based research. We explore questions of human-AI collaboration, develop next-generation interfaces for creative tools, and examine how AI reshapes standards of creative production.</p>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-num">02</div>
+                    <h3>Creative Production</h3>
+                    <p>The lab provides the resources for high-quality creative work at the intersection of AI and art: high-performance computing, open-source AI tools, digital fabrication, and professional output formats.</p>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-num">03</div>
+                    <h3>Knowledge Exchange</h3>
+                    <p>We foster collaboration across disciplines and institutions through international partnerships, workshops, exhibitions, and scholarly publications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="project" class="dark">
+        <div class="container">
+            <span class="section-label reveal">Selected Projects</span>
+            <div class="reveal">
+                <div class="project-hero">
+                    <img src="../../images/mars-impression-painting.jpg" alt="Mars Impression by Hung Hoi">
+                    <span class="img-credit"><em>Mars Impression</em>, Hung Hoi (熊海), 2025. Ink and colour on paper.</span>
+                </div>
+            </div>
+            <div class="project-tag reveal">AI &middot; VR &middot; Planetary Science &middot; Chinese Ink Painting</div>
+            <h2 class="project-title reveal">Celestial Impression</h2>
+            <div class="project-body reveal reveal-delay-1">
+                <p>Celestial Impression is a collaboration between the Creative Intelligence Lab and esteemed Hong Kong ink artist Hung Hoi. Building on the earlier Mars Impression project&mdash;in which Hung Hoi created large-scale ink paintings of the Martian surface after experiencing NASA panoramas in VR&mdash;the Celestial Impression project extends the same art-science methodology to the Moon.</p>
+                <div>
+                    <p>The technical team develops two innovative pipelines: multi-image stitching of archival NASA photography combined with AI inpainting to produce seamless 360-degree panoramas, and AI-enhanced generation from low-resolution LROC data using custom ComfyUI workflows to create high-fidelity lunar surface environments.</p>
+                    <p class="project-collab">Studio Pollen &middot; Creative Intelligence Lab</p>
+                </div>
+            </div>
+            <div class="h-gallery">
+                <figure>
+                    <img src="../../images/hung-hoi-vr-studio.jpg" alt="Hung Hoi in VR">
+                    <figcaption>Hung Hoi experiencing Mars surface panoramas in VR</figcaption>
+                </figure>
+                <figure>
+                    <img src="../../images/vr-landscape-sketch.jpg" alt="VR landscape sketch">
+                    <figcaption>VR landscape sketch &mdash; 3D drawing on the Martian surface</figcaption>
+                </figure>
+                <figure>
+                    <img src="../../images/apollo-surface-panorama.jpg" alt="Apollo 15 panorama">
+                    <figcaption>Apollo 15 landing site &mdash; 360&deg; panorama from NASA photography</figcaption>
+                </figure>
+                <figure>
+                    <img src="../../images/komarov-crater-panorama.jpg" alt="Komarov Crater">
+                    <figcaption>Komarov Crater &mdash; AI-enhanced from LROC data</figcaption>
+                </figure>
+                <figure>
+                    <img src="../../images/tycho-crater-panorama.jpg" alt="Tycho Crater">
+                    <figcaption>Tycho Crater &mdash; AI-enhanced from LROC data</figcaption>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section id="people">
+        <div class="container">
+            <span class="section-label reveal">People</span>
+            <h2 class="section-title reveal">The team</h2>
+
+            <div class="director-block reveal reveal-delay-1">
+                <div>
+                    <div class="director-name">Atticus Sims</div>
+                    <div class="director-role">Associate Professor of Interdisciplinary Research in AI and Design</div>
+                </div>
+                <div class="director-bio">
+                    <p>Atticus Sims is an Associate Professor of Interdisciplinary Research in Artificial Intelligence and Design at the University of Macau, within the Faculty of Arts and Humanities, <a href="https://fah.um.edu.mo/dad/" target="_blank" rel="noopener">Department of Arts and Design</a>. He is an interdisciplinary researcher and educator focused on integrating AI technologies into creative practices and art and design education.</p>
+                    <p>Previously a specially appointed associate professor at Kyoto Seika University&rsquo;s Faculty of Media Creation, he led a president-funded investigation into pedagogical frameworks for emerging AI tools and their impact on creative practices and educational methodologies. His research examines the systematic implementation of diffusion models and generative frameworks in art and design production, with a focus on developing curricula and methodologies for AI-driven visual media creation.</p>
+                    <p>This academic work is complemented by prior industry experience as the founder of KYOTO VR, an immersive media production company that created XR experiences for heritage sites and cultural institutions in Kyoto, Japan. Current projects include international collaborations exploring AI&rsquo;s creative applications&mdash;such as <em>The Metamorphosis of Plants</em> exhibition, which investigates evolutionary principles through machine learning&mdash;and a permanent installation at Hong Kong Baptist University that visualizes knowledge structures through algorithmic composition.</p>
+                    <p>He is a co-founder of <a href="https://www.studio-pollen.com/" target="_blank" rel="noopener">Studio Pollen</a>, an art, science and technology collective with members based across Kyoto, Macau and Hong Kong, and actively contributes to international discourse through workshops and symposia on the implementation of AI in creative contexts.</p>
+                </div>
+            </div>
+
+            <span class="members-label reveal">Members</span>
+            <div class="members-grid">
+                <div class="member reveal reveal-delay-1">
+                    <h4>Ethan Quan</h4>
+                    <span class="member-role-tag">Doctoral Student, Visual Communication Design</span>
+                    <p>Art and creative designer and former Senior UX Designer at vivo and Xiaomi. His research focuses on the visual design of consumer electronic systems, exploring the innovative fusion of art, design, technology, and user interaction.</p>
+                </div>
+                <div class="member reveal reveal-delay-2">
+                    <h4>Lawrence Song</h4>
+                    <span class="member-role-tag">Doctoral Student, Visual Communication Design</span>
+                    <p>Designer and creative technologist specialising in the intersection of computation and visual/experiential design. His practice-based work explores programming and emerging technologies to create engaging electronic content, interactive experiences, and immersive environments.</p>
+                </div>
+                <div class="member reveal reveal-delay-3">
+                    <h4>Joanna Yan</h4>
+                    <span class="member-role-tag">Doctoral Student, Visual Communication Design</span>
+                    <p>UK-Chartered Landscape Architect and visual artist connecting nature, art, technology, and human experience. With nearly a decade of international practice, she now focuses on immersive spatial experiences and AIGC-driven interactive art.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="dark">
+        <div class="container">
+            <span class="section-label reveal">Contact</span>
+            <h2 class="section-title reveal">Get in touch</h2>
+            <p class="reveal muted-text" style="max-width:550px;margin-bottom:2rem;font-size:0.95rem;">We welcome inquiries from prospective students, potential collaborators, and fellow researchers interested in the intersection of AI and creative practice.</p>
+            <div class="contact-grid reveal reveal-delay-1">
+                <div>
+                    <span class="contact-item-label">Email</span>
+                    <p><a href="mailto:atticussims@um.edu.mo">atticussims@um.edu.mo</a></p>
+                </div>
+                <div>
+                    <span class="contact-item-label">Location</span>
+                    <p>Department of Arts and Design<br>Faculty of Arts and Humanities<br>University of Macau<br>Avenida da Universidade, Taipa<br>Macau SAR, China</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025&ndash;2026 Creative Intelligence Lab, University of Macau. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Scroll-aware nav
+        window.addEventListener('scroll', () => {
+            document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+        });
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
