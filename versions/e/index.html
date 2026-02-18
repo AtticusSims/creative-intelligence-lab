@@ -119,9 +119,28 @@
             padding: clamp(2.5rem, 5vw, 4rem) 2.5rem;
         }
         .glass {
+            position: relative;
             background: rgba(245,243,239,0.85);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
+        }
+        .glass::before,
+        .glass::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 80px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .glass::before {
+            top: -80px;
+            background: linear-gradient(to bottom, transparent, rgba(245,243,239,0.85));
+        }
+        .glass::after {
+            bottom: -80px;
+            background: linear-gradient(to top, transparent, rgba(245,243,239,0.85));
         }
         .max-w { max-width: 1200px; margin: 0 auto; }
 
@@ -722,11 +741,10 @@
         const startTime = performance.now();
 
         // Light theme color: very light grayscale characters on light bg.
-        // Mouse spotlight makes characters slightly darker/more visible.
+        // Ambient field barely visible, mouse spotlight reveals darker chars.
         function getColor(scrollRatio, brightness) {
-            // Grayscale: lightest chars barely visible, mouse-boosted ones darker
-            const l = 82 - brightness * 30;  // 82% (very light) → 52% (visible gray) near mouse
-            return `hsl(220, 5%, ${l}%)`;
+            const l = 88 - brightness * 32;  // 88% (nearly invisible) → 56% (visible gray) near mouse
+            return `hsl(220, 4%, ${l}%)`;
         }
 
         const SAMPLE = 4;
@@ -800,7 +818,7 @@
             ctx.font = `${fontSize}px "Courier New", "Courier", monospace`;
             ctx.textBaseline = 'top';
 
-            const baseAlpha = 0.07 + (1 - globalDim) * 0.65;
+            const baseAlpha = 0.06 + (1 - globalDim) * 0.55;
             const mouseRadius = 250;
 
             // Rolling char update
@@ -894,7 +912,7 @@
 
             let isDragging = false;
             let prevX = 0, prevY = 0;
-            let lon = 0, lat = 0;
+            let lon = -15, lat = -8;  // Start facing the Tycho central peak
 
             panoEl.addEventListener('pointerdown', (e) => {
                 isDragging = true;

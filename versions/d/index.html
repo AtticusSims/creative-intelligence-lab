@@ -119,9 +119,28 @@
             padding: clamp(2.5rem, 5vw, 4rem) 2.5rem;
         }
         .glass {
+            position: relative;
             background: rgba(8,10,18,0.82);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
+        }
+        .glass::before,
+        .glass::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 80px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .glass::before {
+            top: -80px;
+            background: linear-gradient(to bottom, transparent, rgba(8,10,18,0.82));
+        }
+        .glass::after {
+            bottom: -80px;
+            background: linear-gradient(to top, transparent, rgba(8,10,18,0.82));
         }
         .max-w { max-width: 1200px; margin: 0 auto; }
 
@@ -946,7 +965,7 @@
 
             let isDragging = false;
             let prevX = 0, prevY = 0;
-            let lon = 0, lat = 0;
+            let lon = -15, lat = -8;  // Start facing the Tycho central peak
 
             panoEl.addEventListener('pointerdown', (e) => {
                 isDragging = true;
